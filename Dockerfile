@@ -1,4 +1,4 @@
-FROM golang:1.20-alpine as buildbase
+FROM golang:1.24.2-alpine AS buildbase
 
 RUN apk add git build-base
 
