@@ -3,10 +3,10 @@ log:
   disable_sentry: true
 
 db:
-  url: db_url
+  url: "postgres://utluser:utlpass@utl_db:5432/usdc_transfer_listener?sslmode=disable"
 
 listener:
-  addr: :8000
+  addr: :8080
 
 cop:
   disabled: true
@@ -14,3 +14,6 @@ cop:
   upstream: "http://..."
   service_name: usdc-transfer-listener-svc
   service_port: 80
+
+keys:
+  infura_api: "${INFURA_API_KEY}"

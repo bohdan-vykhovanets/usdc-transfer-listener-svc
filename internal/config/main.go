@@ -13,6 +13,7 @@ type Config interface {
 	pgdb.Databaser
 	types.Copuser
 	comfig.Listenerer
+	Keyer
 }
 
 type config struct {
@@ -20,6 +21,7 @@ type config struct {
 	pgdb.Databaser
 	types.Copuser
 	comfig.Listenerer
+	Keyer
 	getter kv.Getter
 }
 
@@ -30,5 +32,6 @@ func New(getter kv.Getter) Config {
 		Copuser:    copus.NewCopuser(getter),
 		Listenerer: comfig.NewListenerer(getter),
 		Logger:     comfig.NewLogger(getter, comfig.LoggerOpts{}),
+		Keyer:      NewKeyer(getter),
 	}
 }

@@ -1,8 +1,8 @@
-# usdc-transfer-listener-svc
+# USDC Transfer Listener Service
 
 ## Description
 
-This service listens Transfer events from USDC smart-contract and stores information about transactions to PostgreSQL database
+This service listens Transfer events from USDC smart-contract on Ethereum mainnet and stores information about transactions to PostgreSQL database
 
 ## Install
 
@@ -17,14 +17,10 @@ This service listens Transfer events from USDC smart-contract and stores informa
 
 ## Running from docker 
   
-Make sure that docker installed.
-
-use `docker run ` with `-p 8080:80` to expose port 80 to 8080
-
-  ```
-  docker build -t github.com/bohdan-vykhovanets/usdc-transfer-listener-svc .
-  docker run -e KV_VIPER_FILE=/config.yaml github.com/bohdan-vykhovanets/usdc-transfer-listener-svc
-  ```
+1. Make sure that docker installed.
+2. Download docker-compose.yaml
+3. Add your actual Infura API key to .env file as INFURA_API so docker-compose can read it.
+4. Execute `docker compose up`
 
 ## Running from Source
 

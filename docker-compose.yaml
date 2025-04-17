@@ -1,0 +1,46 @@
+services:
+  app:
+    image: ghcr.io/bohdan-vykhovanets/usdc-transfer-listener:latest
+    container_name: utl-api
+    environment:
+      - KV_VIPER_FILE=/app/config.yaml
+      - KEYS_INFURA_API:${INFURA_API}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./config.yaml:/app/config.yaml
+    ports:
+      - "8080:8080"
+
+  db:
+    image: postgres:latest
+    container_name: utl-db
+    hostname: utl_db
+    environment:
+      - POSTGRES_USER=utluser
+      - POSTGRES_PASSWORD=utlpass
+      - POSTGRES_DB=usdc_transfer_listener
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U utluser -d usdc_transfer_listener"]
+      interval: 2s
+      timeout: 1s
+      retries: 5
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  nginx:
+    image: nginx:latest
+    container_name: utl-nginx
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+
+volumes:
+  postgres_data:
