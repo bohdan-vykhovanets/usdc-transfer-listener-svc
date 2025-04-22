@@ -7,6 +7,11 @@ import (
 type TransferQ interface {
 	Select() (*[]Transfer, error)
 	Insert(value Transfer) error
+
+	FilterByFrom(from string) TransferQ
+	FilterByTo(to string) TransferQ
+	FilterByCounterparty(counterparty string) TransferQ
+	Paginate(limit, offset uint64) TransferQ
 }
 
 type Transfer struct {

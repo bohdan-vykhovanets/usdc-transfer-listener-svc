@@ -11,25 +11,29 @@ import (
 
 const tableName = "transfers"
 
-func newTransferQ(db *pgdb.DB) data.TransferQ {
-	return &transferQ{
-		db:  db,
-		sql: sq.StatementBuilder,
-	}
-}
-
 type transferQ struct {
 	db  *pgdb.DB
-	sql sq.StatementBuilderType
+	sql sq.SelectBuilder
+}
+
+func newTransferQ(db *pgdb.DB) data.TransferQ {
+	baseSelect := sq.Select("*").From(tableName)
+
+	return &transferQ{
+		db:  db,
+		sql: baseSelect,
+	}
 }
 
 func (q *transferQ) Select() (*[]data.Transfer, error) {
 	var result []data.Transfer
 
-	stmt := sq.Select(`"id", "from", "to", "value"`).From(tableName)
-	err := q.db.Select(&result, stmt)
+	err := q.db.Select(&result, q.sql)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to select transfers from database")
+	}
+	if result == nil {
+		result = []data.Transfer{}
 	}
 
 	return &result, nil
@@ -49,4 +53,30 @@ func (q *transferQ) Insert(value data.Transfer) error {
 	}
 
 	return nil
+}
+
+func (q *transferQ) FilterByFrom(from string) data.TransferQ {
+	pred := sq.Eq{`"from"`: from}
+	q.sql = q.sql.Where(pred)
+	return q
+}
+
+func (q *transferQ) FilterByTo(to string) data.TransferQ {
+	pred := sq.Eq{`"to"`: to}
+	q.sql = q.sql.Where(pred)
+	return q
+}
+
+func (q *transferQ) FilterByCounterparty(counterparty string) data.TransferQ {
+	pred := sq.Or{
+		sq.Eq{`"from"`: counterparty},
+		sq.Eq{`"to"`: counterparty},
+	}
+	q.sql = q.sql.Where(pred)
+	return q
+}
+
+func (q *transferQ) Paginate(limit, offset uint64) data.TransferQ {
+	q.sql = q.sql.Limit(limit).Offset(offset)
+	return q
 }
