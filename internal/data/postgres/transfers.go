@@ -1,7 +1,7 @@
 package postgres
 
 import (
-	"github.com/ethereum/go-ethereum/common"
+	sql2 "database/sql"
 	"gitlab.com/distributed_lab/logan/v3/errors"
 
 	sq "github.com/Masterminds/squirrel"
@@ -41,12 +41,16 @@ func (q *transferQ) Select() (*[]data.Transfer, error) {
 
 func (q *transferQ) Insert(value data.Transfer) error {
 	stmt := sq.Insert(tableName).
-		Columns(`"from"`, `"to"`, `"value"`).
+		Columns(`"block_number"`, `"tx_hash"`, `"log_index"`, `"from"`, `"to"`, `"value"`).
 		Values(
-			common.Address(value.From).Hex(),
-			common.Address(value.To).Hex(),
+			value.BlockNumber,
+			value.TxHash,
+			value.LogIndex,
+			value.From,
+			value.To,
 			value.Value.Int.String(),
-		)
+		).
+		Suffix("ON CONFLICT (block_number, tx_hash, log_index) DO NOTHING")
 	err := q.db.Exec(stmt)
 	if err != nil {
 		return errors.Wrap(err, "failed to insert transfer to database")
@@ -79,4 +83,21 @@ func (q *transferQ) FilterByCounterparty(counterparty string) data.TransferQ {
 func (q *transferQ) Paginate(limit, offset uint64) data.TransferQ {
 	q.sql = q.sql.Limit(limit).Offset(offset)
 	return q
+}
+
+func (q *transferQ) GetLastProcessedBlock() (uint64, error) {
+	var result sql2.NullInt64
+
+	sql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	stmt := sql.Select("MAX(block_number)").From(tableName)
+	err := q.db.Get(&result, stmt)
+	if err != nil {
+		return 0, errors.Wrap(err, "failed to query last processed block")
+	}
+
+	if !result.Valid {
+		return 0, nil
+	}
+
+	return uint64(result.Int64), nil
 }

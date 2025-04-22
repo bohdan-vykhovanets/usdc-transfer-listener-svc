@@ -16,10 +16,10 @@ const (
 	DefaultOffset uint64 = 0
 )
 
-func baseError(detail string, code string) *jsonapi.ErrorObject {
+func baseError(detail string, status string) *jsonapi.ErrorObject {
 	return &jsonapi.ErrorObject{
 		Detail: detail,
-		Code:   code,
+		Status: status,
 	}
 }
 
@@ -41,7 +41,7 @@ func IndexTransfers(w http.ResponseWriter, r *http.Request) {
 			ape.RenderErr(w, baseError("Invalid address format in from param", "400"))
 		}
 		from := strings.ToLower(rawFrom)
-		logger.Infof("from: %s", from)
+		logger.Infof("filter by from: %s", from)
 		q = q.FilterByFrom(from)
 	}
 	if rawTo := query.Get("to"); rawTo != "" {
@@ -50,6 +50,7 @@ func IndexTransfers(w http.ResponseWriter, r *http.Request) {
 			ape.RenderErr(w, baseError("Invalid address format in to param", "400"))
 		}
 		to := strings.ToLower(rawTo)
+		logger.Infof("filter by to: %s", to)
 		q = q.FilterByTo(to)
 	}
 	if rawCounterparty := query.Get("counterparty"); rawCounterparty != "" {
@@ -58,6 +59,7 @@ func IndexTransfers(w http.ResponseWriter, r *http.Request) {
 			ape.RenderErr(w, baseError("Invalid address format in counterparty param", "400"))
 		}
 		counterparty := strings.ToLower(rawCounterparty)
+		logger.Infof("filter by counterparty: %s", counterparty)
 		q = q.FilterByCounterparty(counterparty)
 	}
 

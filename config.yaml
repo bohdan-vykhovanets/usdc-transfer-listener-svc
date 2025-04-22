@@ -15,5 +15,6 @@ cop:
   service_name: usdc-transfer-listener-svc
   service_port: 80
 
-keys:
-  infura_api: "${INFURA_API_KEY}"
+node:
+  node_url: "wss://mainnet.infura.io/ws/v3/"
+  api_key: "${INFURA_API_KEY}"

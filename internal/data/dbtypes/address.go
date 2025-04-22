@@ -33,17 +33,13 @@ func (da *DbAddress) Scan(value interface{}) error {
 	return nil
 }
 
-func (da *DbAddress) Value() (driver.Value, error) {
-	if da == nil {
-		return nil, fmt.Errorf("can't store nil in not null column")
-	}
-
-	address := common.Address(*da)
+func (da DbAddress) Value() (driver.Value, error) {
+	address := common.Address(da)
 	return strings.ToLower(address.Hex()), nil
 }
 
-func (da *DbAddress) MarshalJSON() ([]byte, error) {
-	address := common.Address(*da)
+func (da DbAddress) MarshalJSON() ([]byte, error) {
+	address := common.Address(da)
 	return json.Marshal(address.Hex())
 }
 
