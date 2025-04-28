@@ -5,6 +5,7 @@ import (
 	"gitlab.com/distributed_lab/figure/v3"
 	"gitlab.com/distributed_lab/kit/comfig"
 	"gitlab.com/distributed_lab/kit/kv"
+	"net/url"
 )
 
 type Noder interface {
@@ -45,12 +46,10 @@ func (n *Node) GetNodeUrl() string {
 	if n == nil {
 		return ""
 	}
-	return n.NodeUrl
-}
-
-func (n *Node) GetApiKey() string {
-	if n == nil {
-		return ""
+	u, err := url.Parse(n.NodeUrl)
+	if err != nil {
+		panic(errors.Wrap(err, "invalid node url"))
 	}
-	return n.ApiKey
+	nodeUrl := u.JoinPath(n.ApiKey).String()
+	return nodeUrl
 }

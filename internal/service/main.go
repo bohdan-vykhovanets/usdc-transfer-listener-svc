@@ -8,7 +8,6 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 	"net"
 	"net/http"
-	"net/url"
 	"os/signal"
 	"sync"
 	"syscall"
@@ -76,11 +75,7 @@ func Run(cfg config.Config) {
 	svc := newService(cfg)
 
 	node := cfg.Node()
-	u, err := url.Parse(node.GetNodeUrl())
-	if err != nil {
-		logger.WithError(err).Fatal("Failed to parse node url")
-	}
-	mainnetSocket := u.JoinPath(node.GetApiKey()).String()
+	mainnetSocket := node.GetNodeUrl()
 	client, err := ethclient.Dial(mainnetSocket)
 	if err != nil {
 		logger.WithError(err).Fatal("Failed to dial Ethereum client")

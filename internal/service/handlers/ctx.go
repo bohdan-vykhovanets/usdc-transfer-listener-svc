@@ -13,6 +13,7 @@ type ctxKey int
 const (
 	logCtxKey ctxKey = iota
 	dbCtxKey
+	nodeCtxKey
 )
 
 func CtxLog(entry *logan.Entry) func(context.Context) context.Context {
@@ -30,3 +31,9 @@ func CtxDb(entry data.MainQ) func(context.Context) context.Context {
 }
 
 func Db(r *http.Request) data.MainQ { return r.Context().Value(dbCtxKey).(data.MainQ).New() }
+
+func CtxNode(entry string) func(context.Context) context.Context {
+	return func(ctx context.Context) context.Context { return context.WithValue(ctx, nodeCtxKey, entry) }
+}
+
+func Node(r *http.Request) string { return r.Context().Value(nodeCtxKey).(string) }

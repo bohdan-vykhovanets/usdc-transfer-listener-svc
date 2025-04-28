@@ -15,7 +15,7 @@ import (
 const (
 	USDCTokenAddress  = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
 	defaultStartBlock = 22326050
-	defaultBatchSize  = 100
+	defaultBatchSize  = 10
 )
 
 func Transfers(ctx context.Context, client *ethclient.Client, wg *sync.WaitGroup) {
@@ -31,13 +31,13 @@ func Transfers(ctx context.Context, client *ethclient.Client, wg *sync.WaitGroup
 	}
 
 	usdcAddress := common.HexToAddress(USDCTokenAddress)
-	erc20Filterer, err := token.NewERC20Filterer(usdcAddress, client)
+	erc20Filterer, err := token.NewErc20Filterer(usdcAddress, client)
 	if err != nil {
 		logger.Errorf("Failed to create ERC20Filterer for sunbscription: %v", err)
 		return
 	}
 
-	events := make(chan *token.ERC20Transfer)
+	events := make(chan *token.Erc20Transfer)
 
 	select {
 	case <-ctx.Done():
@@ -113,7 +113,7 @@ func syncPastTransfers(ctx context.Context, client *ethclient.Client) error {
 	}
 
 	usdcAddress := common.HexToAddress(USDCTokenAddress)
-	erc20Filterer, err := token.NewERC20Filterer(usdcAddress, client)
+	erc20Filterer, err := token.NewErc20Filterer(usdcAddress, client)
 	if err != nil {
 		return fmt.Errorf("failed to instantiate ERC20Filterer: %w", err)
 	}
